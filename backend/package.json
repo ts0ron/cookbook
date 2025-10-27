@@ -4,7 +4,7 @@
   "description": "Hello World Express server",
   "main": "server.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
     "start": "npm run build && node dist/server.js",
     "dev": "./dev.sh",
     "dev:direct": "ts-node-dev --respawn --transpile-only server.ts"
