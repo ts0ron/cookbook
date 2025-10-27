@@ -14,8 +14,11 @@ function App() {
     setResult('')
 
     try {
-      const url = name ? `/hello/world?name=${encodeURIComponent(name)}` : '/hello/world'
-      const response = await fetch(url)
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8014'
+      const path = name ? `/hello/world?name=${encodeURIComponent(name)}` : '/hello/world'
+      const fullUrl = `${baseUrl}${path}`
+      console.log("trying to fetch from", fullUrl)
+      const response = await fetch(fullUrl)
       
       if (!response.ok) {
         throw new Error('Failed to fetch')
@@ -24,7 +27,7 @@ function App() {
       const data = await response.text()
       setResult(data)
     } catch (err) {
-      setError('Failed to connect to the server. Make sure the backend is running on port 3000.')
+      setError(`Failed to connect to the server. Make sure the backend is running at ${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8014'}.`)
       console.error('Error:', err)
     } finally {
       setLoading(false)

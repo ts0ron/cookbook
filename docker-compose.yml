@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongodb/mongodb-atlas-local
+    container_name: cookbook-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - atlas-data:/var/atlas
+      - ./deployment/mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - cookbook-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: local-cookbook-backend
+    container_name: cookbook-backend
+    restart: always
+    ports:
+      - "8014:8014"
+    environment:
+      - PORT=8014
+      - NODE_ENV=production
+      - MONGO_HOST=localhost
+      - MONGO_PORT=27017
+      - MONGO_DATABASE=cookbook
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - cookbook-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8014/hello/world"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.2'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: local-cookbook-frontend
+    container_name: cookbook-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://shareacooking-api:8014
+    depends_on:
+      - backend
+    networks:
+      - cookbook-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.1'
+        reservations:
+          memory: 64M
+          cpus: '0.05'
+
+volumes:
+  mongo-data:
+    driver: local
+  atlas-data:
+    driver: local
+
+networks:
+  cookbook-network:
+    driver: bridge
+

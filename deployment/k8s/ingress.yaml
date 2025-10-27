@@ -1,0 +1,40 @@
+# Ingress for exposing frontend and backend services
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cookbook-ingress
+  namespace: cookbook
+  labels:
+    app: cookbook
+  annotations:
+    # For nginx ingress controller
+    # Rewrite /api/hello/world to /hello/world for backend
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # Increase timeouts for better compatibility
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: localhost
+    http:
+      paths:
+      # Frontend - serve at root
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 3000
+      # Backend API - serve at /api/
+      - path: /api/(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 8014
+

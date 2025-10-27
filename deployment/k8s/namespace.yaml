@@ -1,2 +1,7 @@
-# Namespace configuration
-
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cookbook
+  labels:
+    name: cookbook
+    app: cookbook

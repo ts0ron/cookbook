@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 
 const app = express();
-const PORT: number = parseInt(process.env.PORT || '3000', 10);
+const PORT: number = parseInt(process.env.BACKEND_PORT || process.env.PORT || '8014', 10);
 
 // Enable CORS for all routes
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -20,6 +20,11 @@ app.get('/hello/world', (req: Request, res: Response) => {
   } else {
     res.send('Hello World');
   }
+});
+
+// Health check endpoint
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'success' });
 });
 
 // Start the server
