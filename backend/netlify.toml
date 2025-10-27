@@ -1,0 +1,14 @@
+[build]
+  # Build command - now TypeScript is in dependencies
+  command = "npm run build"
+
+  # Directory to publish (build output)
+  publish = "dist"
+
+  # TypeScript is now in dependencies, so no special flags needed
+  [build.environment]
+    NODE_VERSION = "18"
+
+[functions]
+  # Deploy as serverless functions (recommended for Netlify)
+  directory = "dist"
